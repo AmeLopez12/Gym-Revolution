@@ -1,0 +1,72 @@
+/* paleta de colores*/
+:root {
+    --negro-mate:    #0f0f0f;
+    --negro-fuerte:  #1a1a1a;
+    --verde:         #80d555;
+    --verde-lima:    #aaff00;
+    --gris-oscuro:   #222222;
+    --gris-medio:    #444444;
+    --blanco:        #f0f0f0;
+    --blanco-suave:  #e0e0e0;
+    --rojo-alerta:   #ff2d55;
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('logo.jpg');
+    background-size: 25%;
+    color: var(--blanco-suave);
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+}
+
+.titulo-pagina {
+    color: var(--verde-lima);
+    font-size: 1.8rem;
+
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.text-lima {
+    color: var(--verde-lima) !important;
+}
+
+.boton-primario {
+    background: var(--verde);
+    color: var(--negro-mate);
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+
+.bg-black {
+    background-color: #000000 !important;
+}
+
+/* Alineación centrada para los formularios */
+.contenedor-formulario {
+    min-height: 80vh;
+}
+
+/* Efecto hover suave en filas */
+.table-hover tbody tr:hover {
+    background-color: rgba(128, 213, 85, 0.05) !important;
+}
+
+/* Estilo del botón cerrar (X) */
+.boton-cerrar {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+/* Ajustes de tipografía para labels */
+.form-label {
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
