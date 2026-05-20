@@ -1,0 +1,6 @@
+@RevolutionBackend_HostAddress = http://localhost:5230
+
+GET {{RevolutionBackend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
