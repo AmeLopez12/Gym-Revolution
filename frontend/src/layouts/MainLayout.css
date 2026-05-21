@@ -1,0 +1,62 @@
+/* Contenedor principal*/
+.main-layout-container {
+    background-color: #0f0f0f;
+    min-height: 100vh;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', sans-serif;
+}
+.custom-navbar {
+    background-color: #1a1a1a;
+    border-bottom: 2px solid #444444;
+    padding: 15px 25px;
+}
+/*Nombre*/
+.navbar-brand-custom {
+    color: #aaff00 !important;
+    font-size: 1.8rem;
+}
+.custom-toggler {
+    border-color: #444444 !important;
+    background-color: transparent !important;
+}
+.custom-toggler .navbar-toggler-icon {
+    filter: invert(1) brightness(100%);
+}
+.nav-link-custom {
+    color: #e0e0e0 !important;
+    font-weight: 600;
+    border-top: 3px solid transparent;
+    padding-top: 13px !important;
+    padding-bottom: 13px !important;
+    background-color: transparent;
+    border-radius: 10px 10px 0 0;
+    transition: all 0.3s ease;
+    margin-right: 8px;
+}
+.nav-link-custom.active-tab {
+    color: #aaff00 !important;
+    border-top: 3px solid #aaff00;
+    padding-top: 10px !important;
+    background-color: #222222;
+}
+.user-actions-container {
+    font-size: 0.85rem;
+    color: #f0f0f0;
+}
+.logout-link {
+    color: #80d555;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+}
+.logout-link:hover {
+    color: #aaff00;
+}
+.max-width-1400 {
+    max-width: 1400px;
+}
+.content-wrapper {
+    max-width: 1400px;
+    padding: 0 40px;
+}

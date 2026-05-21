@@ -32,7 +32,13 @@ var app = builder.Build();
 // OpenAPI
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.MapOpenApi();                    // Documento OpenAPI
+
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "Gym Revolution API v1");
+        options.RoutePrefix = "swagger";   // Acceder en /swagger
+    });
 }
 
 // Middleware
