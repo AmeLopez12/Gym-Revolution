@@ -14,6 +14,6 @@ namespace RevolutionBackend.Models
         [MaxLength(10)]
         public string Salario { get; set; }
 
-        public List<Actividad> Actividades { get; set; }
+        public List<Actividad>? Actividades { get; set; }
     }
 }

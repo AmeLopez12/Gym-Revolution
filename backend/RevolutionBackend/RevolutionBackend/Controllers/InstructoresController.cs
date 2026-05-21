@@ -85,7 +85,7 @@ namespace RevolutionBackend.Controllers
         }
         private bool instructorExists(int id)
         {
-            return _context.Socios.Any(e => e.Id == id);
+            return _context.Instructores.Any(e => e.Id == id);
         }
     }
 }

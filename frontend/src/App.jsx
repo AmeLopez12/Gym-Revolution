@@ -6,6 +6,7 @@ import Socios from './pages/Socios';
 import MainLayout from './layouts/MainLayout';
 import Dashboard from './pages/Dashboard';
 import Actividades from './pages/Actividades';
+import Instructores from './pages/Instructores';
 
 function App() {
   return (
@@ -17,7 +18,7 @@ function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="actividades" element={<Actividades />} />
           <Route path="socios" element={<Socios />} />
-          <Route path="instructores" element={<div>Sección de Instructores</div>} />
+          <Route path="instructores" element={<Instructores />} />
         </Route>
       </Routes>
     </Router>

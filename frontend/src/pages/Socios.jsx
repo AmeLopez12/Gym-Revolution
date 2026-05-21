@@ -109,7 +109,7 @@ function Socios() {
             if (response.ok) {
                 await obtenerSocios();
                 cambiarMensaje(
-                    esEdicion ? "Socio actualizado exitosamente en la tabla" : "Socio creado exitosamente en la tabla", 
+                    esEdicion ? "Socio actualizado exitosamente" : "Socio creado exitosamente", 
                     "success"
                 );
                 cancelarFormulario();
@@ -254,7 +254,7 @@ function Socios() {
                                                         <td>
                                                             {confirmarEliminarId === idSocio ? (
                                                                 // Interfaz Inline de confirmación de borrado
-                                                                <div className="d-flex gap-1">
+                                                                <div className="d-flex justify-content-center align-items-center gap-1">
                                                                     <Button 
                                                                         variant="danger" 
                                                                         size="sm"
