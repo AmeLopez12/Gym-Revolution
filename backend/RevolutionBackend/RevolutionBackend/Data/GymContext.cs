@@ -11,5 +11,12 @@ namespace RevolutionBackend.Data
         }
 
         public DbSet<Socio> Socios { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
+
+        public DbSet<Instructor> Instructores { get; set; }
+
+        public DbSet<Actividad> Actividades { get; set; }
+
+        public DbSet<Inscripcion> Inscripciones { get; set; }
     }
 }
