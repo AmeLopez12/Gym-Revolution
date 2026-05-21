@@ -12,10 +12,6 @@ import {
 
 function Socios() {
 
-    // =========================
-    // STATES
-    // =========================
-
     const [socios, setSocios] = useState([]);
 
     const [busqueda, setBusqueda] = useState("");
@@ -30,10 +26,6 @@ function Socios() {
 
         estado: true
     });
-
-    // =========================
-    // OBTENER SOCIOS
-    // =========================
 
     const obtenerSocios = async () => {
 
@@ -53,10 +45,6 @@ function Socios() {
 
         }
     };
-
-    // =========================
-    // CREAR SOCIO
-    // =========================
 
     const crearSocio = async () => {
 
@@ -99,19 +87,11 @@ function Socios() {
         }
     };
 
-    // =========================
-    // USE EFFECT
-    // =========================
-
     useEffect(() => {
 
         obtenerSocios();
 
     }, []);
-
-    // =========================
-    // FILTRO
-    // =========================
 
     const sociosFiltrados = socios.filter((socio) =>
         (socio.nombreCompleto || "")
@@ -119,15 +99,11 @@ function Socios() {
             .includes(busqueda.toLowerCase())
     );
 
-    // =========================
-    // RENDER
-    // =========================
-
     return (
 
         <Container fluid className="py-4 text-light">
 
-            {/* HEADER */}
+            {}
 
             <Row className="mb-4">
 
@@ -153,7 +129,7 @@ function Socios() {
 
             </Row>
 
-            {/* FORMULARIO */}
+            {}
 
             <Row className="mb-4">
 
@@ -169,7 +145,7 @@ function Socios() {
 
                             <Row className="g-3">
 
-                                {/* NOMBRE */}
+                                {}
 
                                 <Col md={4}>
 
@@ -188,7 +164,7 @@ function Socios() {
 
                                 </Col>
 
-                                {/* TELÉFONO */}
+                                {}
 
                                 <Col md={4}>
 
@@ -207,7 +183,7 @@ function Socios() {
 
                                 </Col>
 
-                                {/* DESCUENTO */}
+                                {}
 
                                 <Col md={4}>
 
@@ -226,7 +202,7 @@ function Socios() {
 
                                 </Col>
 
-                                {/* FECHA REGISTRO */}
+                                {}
 
                                 <Col md={6}>
 
@@ -244,7 +220,7 @@ function Socios() {
 
                                 </Col>
 
-                                {/* VENCIMIENTO */}
+                                {}
 
                                 <Col md={6}>
 
@@ -283,7 +259,7 @@ function Socios() {
 
             </Row>
 
-            {/* BUSCADOR */}
+            {}
 
             <Row className="mb-4">
 
@@ -311,7 +287,7 @@ function Socios() {
 
             </Row>
 
-            {/* TABLA */}
+            {}
 
             <Row>
 
