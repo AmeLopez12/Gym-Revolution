@@ -1,6 +1,6 @@
 /* Contenedor principal*/
 .main-layout-container {
-    background-color: #0f0f0f;
+    background-color: transparent;
     min-height: 100vh;
     color: #e0e0e0;
     font-family: 'Segoe UI', sans-serif;

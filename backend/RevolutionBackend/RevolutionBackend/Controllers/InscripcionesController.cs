@@ -30,5 +30,20 @@ namespace RevolutionBackend.Controllers
 
             return Ok();
         }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteInscripcion(int id)
+        {
+            var inscripcion = await _context.Inscripciones.FindAsync(id);
+
+            if (inscripcion == null)
+            {
+                return NotFound(); 
+            }
+
+            _context.Inscripciones.Remove(inscripcion);
+            await _context.SaveChangesAsync();
+
+            return NoContent(); 
+        }
     }
 }

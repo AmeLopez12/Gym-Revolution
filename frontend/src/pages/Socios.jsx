@@ -43,7 +43,8 @@ function Socios() {
 
     const obtenerSocios = async () => {
         try {
-            const response = await fetch("https://localhost:7099/api/socios");
+           const response = await fetch("https://localhost:7099/api/socios");
+           //const response = await fetch("https://localhost:44348/api/socios");
             if (!response.ok) throw new Error("Error al obtener datos");
             const data = await response.json();
             setSocios(data);
@@ -83,6 +84,8 @@ function Socios() {
         const url = esEdicion 
             ? `https://localhost:7099/api/socios/${socioEditandoId}` 
             : "https://localhost:7099/api/socios";
+           /* ? `https://localhost:44348/api/socios/${socioEditandoId}`
+            : "https://localhost:44348/api/socios";*/
         
         const metodo = esEdicion ? "PUT" : "POST";
 
@@ -127,6 +130,7 @@ function Socios() {
     const eliminarSocio = async (id) => {
         try {
             const response = await fetch(`https://localhost:7099/api/socios/${id}`, {
+            //const response = await fetch(`https://localhost:44348/api/socios/${id}`, {
                 method: "DELETE"
             });
 
@@ -159,7 +163,7 @@ function Socios() {
     });
 
     return (
-        <div style={{ backgroundColor: '#0f0f0f', minHeight: '100vh', position: 'relative' }}>
+        <div style={{ minHeight: '100vh', position: 'relative' }}>
             
             {vista === 'tabla' && (
                 <Container fluid className="py-4 text-light">

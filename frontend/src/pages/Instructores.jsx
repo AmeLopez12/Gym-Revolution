@@ -8,7 +8,7 @@ import {
     Form,
     Card
 } from "react-bootstrap";
-import "./Estilos/socios.css"; // Reutiliza tus estilos existentes
+import "./Estilos/socios.css"; 
 
 function Instructores() {
     const [vista, setVista] = useState('tabla'); 
@@ -41,6 +41,7 @@ function Instructores() {
     const obtenerInstructores = async () => {
         try {
             const response = await fetch("https://localhost:7099/api/instructores");
+            //const response = await fetch("https://localhost:44348/api/instructores");
             if (!response.ok) throw new Error("Error al obtener datos");
             const data = await response.json();
             setInstructores(data);
@@ -76,6 +77,8 @@ function Instructores() {
         const url = esEdicion 
             ? `https://localhost:7099/api/instructores/${instructorEditandoId}` 
             : "https://localhost:7099/api/instructores";
+           /* ? `https://localhost:44348/api/instructores/${instructorEditandoId}`
+            : "https://localhost:44348/api/instructores";*/
         
         const metodo = esEdicion ? "PUT" : "POST";
 
@@ -118,6 +121,7 @@ function Instructores() {
     const eliminarInstructor = async (id) => {
         try {
             const response = await fetch(`https://localhost:7099/api/instructores/${id}`, {
+            //const response = await fetch(`https://localhost:44348/api/instructores/${id}`, {
                 method: "DELETE"
             });
 
@@ -150,7 +154,7 @@ function Instructores() {
     });
 
     return (
-        <div style={{ backgroundColor: '#0f0f0f', minHeight: '100vh', position: 'relative' }}>
+        <div style={{ minHeight: '100vh', position: 'relative' }}>
             
             {vista === 'tabla' && (
                 <Container fluid className="py-4 text-light">
@@ -306,6 +310,7 @@ function Instructores() {
                                     type="text"
                                     name="nombreCompleto"
                                     placeholder="Ej: Laura Gómez"
+                                    maxLength={100}
                                     value={nuevoInstructor.nombreCompleto}
                                     onChange={(e) => setNuevoInstructor({ ...nuevoInstructor, nombreCompleto: e.target.value })}
                                     className="form-control bg-black text-white border-secondary"
@@ -318,6 +323,7 @@ function Instructores() {
                                     type="text"
                                     name="telefono"
                                     placeholder="Ej: 4641234567"
+                                    maxLength={50}
                                     value={nuevoInstructor.telefono}
                                     onChange={(e) => setNuevoInstructor({ ...nuevoInstructor, telefono: e.target.value })}
                                     className="form-control bg-black text-white border-secondary"
@@ -330,6 +336,7 @@ function Instructores() {
                                     type="text"
                                     name="especialidad"
                                     placeholder="Ej: Yoga, Crossfit, Zumba"
+                                    maxLength={100}
                                     value={nuevoInstructor.especialidad}
                                     onChange={(e) => setNuevoInstructor({ ...nuevoInstructor, especialidad: e.target.value })}
                                     className="form-control bg-black text-white border-secondary"
@@ -339,9 +346,10 @@ function Instructores() {
                             <div className="grupo-entrada col-md-6">
                                 <label className="form-label text-lima fw-bold">Salario ($):</label>
                                 <input
-                                    type="text" 
+                                    type="text"
                                     name="salario"
                                     placeholder="Ej: 15000"
+                                    maxLength={10}
                                     value={nuevoInstructor.salario}
                                     onChange={(e) => setNuevoInstructor({ ...nuevoInstructor, salario: e.target.value })}
                                     className="form-control bg-black text-white border-secondary"
