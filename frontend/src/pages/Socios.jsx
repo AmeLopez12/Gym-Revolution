@@ -13,7 +13,10 @@ import "./Estilos/socios.css";
 function Socios() {
     const [vista, setVista] = useState('tabla'); 
     const [socios, setSocios] = useState([]);
+    //para busqueda y filtros
     const [busqueda, setBusqueda] = useState("");
+    const [filtroEstado, setFiltroEstado] = useState("todos"); 
+    const [filtroVencimiento, setFiltroVencimiento] = useState("todos");
     const [socioEditandoId, setSocioEditandoId] = useState(null);
     
     // Estado para confirmaciones de borrado por fila (guarda el ID del socio a eliminar)
@@ -42,66 +45,46 @@ function Socios() {
     };
 
     const obtenerSocios = async () => {
-
     try {
-
         const response = await fetch(
             "https://localhost:7099/api/socios"
         );
-
         if (!response.ok) {
             throw new Error("Error al obtener socios");
         }
-
         const data = await response.json();
-
         const hoy = new Date();
         hoy.setHours(0, 0, 0, 0);
-
         // Revisar vencimientos
         for (const socio of data) {
-
             const id = socio.id ?? socio.Id;
-
             const vencimiento = new Date(
                 socio.vencimiento ?? socio.Vencimiento
             );
-
             vencimiento.setHours(0, 0, 0, 0);
-
             const estadoActual =
                 socio.estado ?? socio.Estado;
-
             // Si ya venció y sigue activo
             if (vencimiento < hoy && estadoActual) {
-
                 const socioActualizado = {
-
                     id: id,
-
                     nombreCompleto:
                         socio.nombreCompleto ??
                         socio.NombreCompleto,
-
                     telefono:
                         socio.telefono ??
                         socio.Telefono,
-
                     descuento:
                         socio.descuento ??
                         socio.Descuento,
-
                     fechaRegistro:
                         socio.fechaRegistro ??
                         socio.FechaRegistro,
-
                     vencimiento:
                         socio.vencimiento ??
                         socio.Vencimiento,
-
                     estado: false
                 };
-
                 await fetch(
                     `https://localhost:7099/api/socios/${id}`,
                     {
@@ -112,17 +95,12 @@ function Socios() {
                         body: JSON.stringify(socioActualizado)
                     }
                 );
-
                 socio.estado = false;
             }
         }
-
         setSocios(data);
-
     } catch (error) {
-
         console.error(error);
-
         cambiarMensaje(
             "Error al conectar con el servidor para leer socios.",
             "danger"
@@ -152,12 +130,10 @@ function Socios() {
         setMensajePantalla({ texto: "", tipo: "" });
         setVista('agregar'); 
     };
-
     const guardarSocio = async (e) => {
         e.preventDefault();
         const esEdicion = socioEditandoId !== null;
         
-
         const hoy = new Date();
 hoy.setHours(0, 0, 0, 0);
 
@@ -168,18 +144,16 @@ const fechaVencimiento = new Date(
 fechaVencimiento.setHours(0, 0, 0, 0);
 
 if (fechaVencimiento < hoy) {
-
     cambiarMensaje(
         "La fecha de vencimiento no puede ser menor a hoy.",
         "danger"
     );
-
     return;
 }   
         const url = esEdicion 
             ? `https://localhost:7099/api/socios/${socioEditandoId}` 
             : "https://localhost:7099/api/socios";
-           /* ? `https://localhost:44348/api/socios/${socioEditandoId}`
+            /* ? `https://localhost:44348/api/socios/${socioEditandoId}`
             : "https://localhost:44348/api/socios";*/
         
         const metodo = esEdicion ? "PUT" : "POST";
@@ -234,7 +208,7 @@ if (fechaVencimiento < hoy) {
                 setConfirmarEliminarId(null);
                 cambiarMensaje("Registro de socio eliminado del sistema", "warning");
             } else {
-                cambiarMensaje("l servidor denegó la eliminación del socio.", "danger");
+                cambiarMensaje("El servidor denegó la eliminación del socio.", "danger");
             }
         } catch (error) {
             console.error(error);
@@ -252,9 +226,40 @@ if (fechaVencimiento < hoy) {
         obtenerSocios();
     }, []);
 
+    //filtrado y Ordenado
     const sociosFiltrados = socios.filter((socio) => {
         const nombre = socio.nombreCompleto !== undefined ? socio.nombreCompleto : socio.NombreCompleto;
-        return (nombre || "").toLowerCase().includes(busqueda.toLowerCase());
+        const cumpleBusqueda = (nombre || "").toLowerCase().includes(busqueda.toLowerCase());
+        //por Estado
+        const est = socio.estado !== undefined ? socio.estado : socio.Estado;
+        let cumpleEstado = true;
+        if (filtroEstado === "activo") cumpleEstado = est === true;
+        if (filtroEstado === "inactivo") cumpleEstado = est === false;
+        //por Vencimiento
+        let cumpleVencimiento = true;
+        const fVencRaw = socio.vencimiento !== undefined ? socio.vencimiento : socio.Vencimiento;
+        if (filtroVencimiento !== "todos") {
+            if (!fVencRaw) {
+                cumpleVencimiento = false; 
+            } else {
+                const fechaVenc = new Date(fVencRaw);
+                fechaVenc.setHours(0, 0, 0, 0); 
+                
+                const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+                
+                const unaSemana = new Date(hoy);
+                unaSemana.setDate(unaSemana.getDate() + 7);
+                if (filtroVencimiento === "vencido") {
+                    cumpleVencimiento = fechaVenc < hoy;
+                } else if (filtroVencimiento === "proxima_semana") {
+                    cumpleVencimiento = fechaVenc >= hoy && fechaVenc <= unaSemana;
+                }
+            }
+        }
+
+        return cumpleBusqueda && cumpleEstado && cumpleVencimiento;
+
     });
 
     return (
@@ -268,7 +273,6 @@ if (fechaVencimiento < hoy) {
                                 <div>
                                     <h1 className="text-accent-green fw-bold mb-1">Socios</h1>
                                     <p className="text-muted-gray mb-0">Gestión de socios</p>
-                                    {/* Notificación integrada en pantalla */}
                                     {mensajePantalla.texto && (
                                         <small className={`fw-semibold text-${mensajePantalla.tipo} d-block mt-1`}>
                                             {mensajePantalla.texto}
@@ -290,24 +294,45 @@ if (fechaVencimiento < hoy) {
                         </Col>
                     </Row>
 
-                    {/* Buscador */}
+                    {/*filtros*/}
                     <Row className="mb-4">
                         <Col>
                             <Card className="custom-card-dark">
-                                <Card.Body>
+                                <Card.Body className="d-flex flex-column flex-md-row gap-3">
+                                    {/*por texto*/}
                                     <Form.Control
                                         type="text"
                                         placeholder="Buscar socio..."
                                         value={busqueda}
                                         onChange={(e) => setBusqueda(e.target.value)}
-                                        className="custom-input-dark"
+                                        className="custom-input-dark flex-grow-1"
                                     />
+                                    {/*por Estado*/}
+                                    <Form.Select 
+                                        value={filtroEstado} 
+                                        onChange={(e) => setFiltroEstado(e.target.value)}
+                                        className="custom-input-dark w-auto"
+                                    >
+                                        <option value="todos">Todos los estados</option>
+                                        <option value="activo">Activos</option>
+                                        <option value="inactivo">Inactivos</option>
+                                    </Form.Select>
+                                    {/*por Vencimiento*/}
+                                    <Form.Select 
+                                        value={filtroVencimiento} 
+                                        onChange={(e) => setFiltroVencimiento(e.target.value)}
+                                        className="custom-input-dark w-auto"
+                                    >
+                                        <option value="todos">Cualquier fecha</option>
+                                        <option value="vencido">Ya venció</option>
+                                        <option value="proxima_semana">Vence en ≤ 1 semana</option>
+                                    </Form.Select>
                                 </Card.Body>
                             </Card>
                         </Col>
                     </Row>
 
-                    {/* Tabla de Socios */}
+                    {/* Tabla Socios */}
                     <Row>
                         <Col>
                             <Card className="custom-card-dark">
