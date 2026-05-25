@@ -4,8 +4,14 @@ import {
     Container,
     Row,
     Col,
-    Card
+    Card,
+    Button
 } from "react-bootstrap";
+
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import { useRef } from "react";
 
 import {
     BarChart,
@@ -24,6 +30,9 @@ import "./Estilos/estadisticas.css";
 
 function Estadisticas() {
 
+    const chartRef1 = useRef();
+    const chartRef2 = useRef();
+    const chartRef3 = useRef();
     const [inscripciones, setInscripciones] =
         useState([]);
 
@@ -122,6 +131,63 @@ function Estadisticas() {
         "#aeea00"
     ];
 
+    // ------------------------------------
+    const exportarGraficaPDF = async (ref, nombreArchivo, tituloReporte) => {
+        const elemento = ref.current;
+        if (!elemento) return;
+
+        try {
+            const canvas = await html2canvas(elemento, {
+                scale: 2, 
+                backgroundColor: "#121212", 
+                useCORS: true,
+                logging: false
+            });
+
+            const imgData = canvas.toDataURL("image/png");
+            
+            const pdf = new jsPDF({
+                orientation: "landscape",
+                unit: "mm",
+                format: "a4"
+            });
+
+            const anchoPdf = pdf.internal.pageSize.getWidth();
+            const altoPdf = pdf.internal.pageSize.getHeight();
+
+            const margen = 15;
+            const anchoUtil = anchoPdf - (margen * 2);
+            
+            const proporcionImg = canvas.height / canvas.width;
+            const altoImgCalculado = anchoUtil * proporcionImg;
+
+            pdf.setFillColor(18, 18, 18);
+            pdf.rect(0, 0, anchoPdf, 25, "F");
+            
+            pdf.setTextColor(57, 255, 20); 
+            pdf.setFont("helvetica", "bold");
+            pdf.setFontSize(16);
+            pdf.text("REPORTE REVOLUTION FITNESS - GESTIÓN DE GYM", margen, 16);
+
+            pdf.setTextColor(255, 255, 255);
+            pdf.setFont("helvetica", "normal");
+            pdf.setFontSize(10);
+            pdf.text(`Gráfica: ${tituloReporte}`, margen + 110, 15);
+            pdf.text(`Fecha de Emisión: ${new Date().toLocaleDateString()}`, anchoPdf - margen - 60, 15);
+
+            pdf.setDrawColor(57, 255, 20);
+            pdf.setLineWidth(0.5);
+            pdf.line(margen, 25, anchoPdf - margen, 25);
+
+            const posicionY = 35;
+            pdf.addImage(imgData, "PNG", margen, posicionY, anchoUtil, altoImgCalculado);
+
+            pdf.save(`${nombreArchivo}_${new Date().toISOString().split('T')[0]}.pdf`);
+        } catch (error) {
+            console.error("Error generando el PDF de la estadística:", error);
+        }
+    };
+
     return (
 
         <Container
@@ -161,7 +227,15 @@ function Estadisticas() {
                                 Actividades más populares
                             </h4>
 
-                            <div className="chart-container">
+                            <Button 
+                                    variant="outline-danger" 
+                                    size="sm"
+                                    onClick={() => exportarGraficaPDF(chartRef1, "Actividades_Populares", "Distribución de Actividades")}
+                                    >
+                                <i className="fa-solid fa-file-pdf me-1"></i> PDF
+                            </Button>
+
+                            <div ref={chartRef1} className="chart-container">
 
                                 <ResponsiveContainer
                                     width="100%"
@@ -207,7 +281,15 @@ function Estadisticas() {
                                 Instructores más populares
                             </h4>
 
-                            <div className="chart-container">
+                            <Button 
+                                    variant="outline-danger" 
+                                    size="sm"
+                                    onClick={() => exportarGraficaPDF(chartRef2, "Instructores_Populares", "Demanda por Instructores")}
+                                >
+                                <i className="fa-solid fa-file-pdf me-1"></i> PDF
+                            </Button>
+
+                            <div ref={chartRef2} className="chart-container">
 
                                 <ResponsiveContainer
                                     width="100%"
@@ -274,7 +356,17 @@ function Estadisticas() {
                                 Horarios más populares
                             </h4>
 
-                            <div className="chart-container">
+                            <Button 
+                                    variant="outline-danger" 
+                                    size="sm"
+                                    onClick={() => exportarGraficaPDF(chartRef3, "Horarios_Populares", "Mayor demanda por Horarios de Inicio")}
+                                >
+                                <i className="fa-solid fa-file-pdf me-1"></i> PDF
+                            </Button>
+
+
+
+                            <div ref={chartRef3} className="chart-container">
 
                                 <ResponsiveContainer
                                     width="100%"

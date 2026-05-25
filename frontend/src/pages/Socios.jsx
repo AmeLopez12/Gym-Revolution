@@ -9,6 +9,7 @@ import {
     Card
 } from "react-bootstrap";
 import "./Estilos/socios.css";
+import * as XLSX from 'xlsx';
 
 function Socios() {
     const [vista, setVista] = useState('tabla'); 
@@ -36,6 +37,30 @@ function Socios() {
     };
 
     const [nuevoSocio, setNuevoSocio] = useState(modeloSocioVacio);
+
+
+// ----------------------------------------------------------------------
+    const handleExportar = (tipo) => {
+    const datosAExportar = sociosFiltrados.map(socio => ({
+        ID: socio.id ?? socio.Id,
+        Nombre: socio.nombreCompleto ?? socio.NombreCompleto,
+        Teléfono: socio.telefono ?? socio.Telefono,
+        Pago: socio.descuento ?? socio.Descuento,
+        "Fecha Registro": socio.fechaRegistro ? new Date(socio.fechaRegistro).toLocaleDateString() : "",
+        Vencimiento: socio.vencimiento ? new Date(socio.vencimiento).toLocaleDateString() : "",
+        Estado: (socio.estado ?? socio.Estado) ? "Activo" : "Inactivo"
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(datosAExportar);
+    const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Socios');
+
+        if (tipo === 'excel') {
+            XLSX.writeFile(wb, 'Reporte_Socios.xlsx');
+        } else if (tipo === 'csv') {
+            XLSX.writeFile(wb, 'Reporte_Socios.csv', { bookType: 'csv' });
+        }
+    };
 
     const cambiarMensaje = (texto, tipo = "info") => {
         setMensajePantalla({ texto, tipo });
@@ -135,7 +160,7 @@ function Socios() {
         const esEdicion = socioEditandoId !== null;
         
         const hoy = new Date();
-hoy.setHours(0, 0, 0, 0);
+        hoy.setHours(0, 0, 0, 0);
 
 const fechaVencimiento = new Date(
     nuevoSocio.vencimiento
@@ -267,6 +292,12 @@ if (fechaVencimiento < hoy) {
             
             {vista === 'tabla' && (
                 <Container fluid className="py-4 text-light">
+                    <div className="d-flex gap-2 mb-3">
+                        <Button onClick={() => handleExportar('csv')} variant="success">
+                            <i className="fa-solid fa-file-csv me-2"></i>Exportar a CSV
+                        </Button>
+                    </div>
+                    
                     <Row className="mb-4">
                         <Col>
                             <div className="d-flex justify-content-between align-items-center p-4 rounded header-container-custom">

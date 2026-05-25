@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "html2canvas": "^1.4.1",
+    "js-xlsx": "^0.8.22",
+    "jspdf": "^4.2.1",
+    "react-csv": "^2.2.2",
+    "xlsx": "^0.18.5"
+  }
+}
