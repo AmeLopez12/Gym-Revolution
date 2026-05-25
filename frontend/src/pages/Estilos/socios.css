@@ -1,32 +1,34 @@
-/* Encabezado*/
 .text-accent-green {
     color: #aaff00 !important;
 }
+
 .text-muted-gray {
     color: #a0a0a0 !important;
 }
-/* Tarjetas y contenedores con el estilo oscuro del gimnasio */
+
 .custom-card-dark {
     background-color: #1a1a1a !important;
     border: 1px solid #444444 !important;
     border-radius: 8px;
 }
+
 .header-container-custom {
     background-color: #1a1a1a;
     border: 1px solid #444444;
 }
-/* Inputs del Formulario */
+
 .custom-input-dark {
     background-color: #0f0f0f !important;
     border: 1px solid #444444 !important;
     color: #e0e0e0 !important;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
+
 .custom-input-dark:focus {
     border-color: #aaff00 !important;
     box-shadow: 0 0 0 0.25rem rgba(170, 255, 0, 0.15) !important;
 }
-/* Botones personalizados */
+
 .btn-accent-success {
     background-color: #aaff00 !important;
     border-color: #aaff00 !important;
@@ -34,34 +36,41 @@
     font-weight: 600;
     transition: all 0.2s ease;
 }
+
 .btn-accent-success:hover {
     background-color: #bcff33 !important;
     border-color: #bcff33 !important;
     transform: translateY(-1px);
 }
+
 .btn-outline-accent-success {
     color: #aaff00 !important;
     border-color: #aaff00 !important;
     background-color: transparent !important;
 }
+
 .btn-outline-accent-success:hover {
     background-color: #aaff00 !important;
     color: #000000 !important;
 }
+
 .custom-table-dark {
     background-color: #1a1a1a !important;
     color: #e0e0e0 !important;
     border-color: #444444 !important;
 }
+
 .custom-table-dark th {
     background-color: #222222 !important;
     color: #aaff00 !important;
     font-weight: 600;
     border-bottom: 2px solid #444444 !important;
 }
+
 .custom-table-dark td {
     vertical-align: middle;
 }
-input::placeholder{
+
+input::placeholder {
     color: #a0a0a0 !important;
 }

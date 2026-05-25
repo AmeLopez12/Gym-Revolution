@@ -32,5 +32,39 @@ namespace RevolutionBackend.Controllers
             return Ok();
         }
 
-   }
+        [HttpPost("login")]
+        public async Task<ActionResult> Login(
+    [FromBody] Usuario login
+)
+        {
+            var usuario = await _context.Usuarios
+                .FirstOrDefaultAsync(u =>
+
+                    u.Username == login.Username &&
+                    u.Password == login.Password &&
+                    u.Activo
+                );
+
+            if (usuario == null)
+            {
+                return Unauthorized(
+                    new
+                    {
+                        mensaje =
+                            "Usuario o contraseña incorrectos"
+                    }
+                );
+            }
+
+            return Ok(
+                new
+                {
+                    id = usuario.Id,
+                    nombre = usuario.NombreCompleto,
+                    username = usuario.Username
+                }
+            );
+        }
+
+    }
 }

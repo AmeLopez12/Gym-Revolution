@@ -42,17 +42,93 @@ function Socios() {
     };
 
     const obtenerSocios = async () => {
-        try {
-           const response = await fetch("https://localhost:7099/api/socios");
-           //const response = await fetch("https://localhost:44348/api/socios");
-            if (!response.ok) throw new Error("Error al obtener datos");
-            const data = await response.json();
-            setSocios(data);
-        } catch (error) {
-            console.error(error);
-            cambiarMensaje("Error al conectar con el servidor para leer socios.", "danger");
+
+    try {
+
+        const response = await fetch(
+            "https://localhost:7099/api/socios"
+        );
+
+        if (!response.ok) {
+            throw new Error("Error al obtener socios");
         }
-    };
+
+        const data = await response.json();
+
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+
+        // Revisar vencimientos
+        for (const socio of data) {
+
+            const id = socio.id ?? socio.Id;
+
+            const vencimiento = new Date(
+                socio.vencimiento ?? socio.Vencimiento
+            );
+
+            vencimiento.setHours(0, 0, 0, 0);
+
+            const estadoActual =
+                socio.estado ?? socio.Estado;
+
+            // Si ya venció y sigue activo
+            if (vencimiento < hoy && estadoActual) {
+
+                const socioActualizado = {
+
+                    id: id,
+
+                    nombreCompleto:
+                        socio.nombreCompleto ??
+                        socio.NombreCompleto,
+
+                    telefono:
+                        socio.telefono ??
+                        socio.Telefono,
+
+                    descuento:
+                        socio.descuento ??
+                        socio.Descuento,
+
+                    fechaRegistro:
+                        socio.fechaRegistro ??
+                        socio.FechaRegistro,
+
+                    vencimiento:
+                        socio.vencimiento ??
+                        socio.Vencimiento,
+
+                    estado: false
+                };
+
+                await fetch(
+                    `https://localhost:7099/api/socios/${id}`,
+                    {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(socioActualizado)
+                    }
+                );
+
+                socio.estado = false;
+            }
+        }
+
+        setSocios(data);
+
+    } catch (error) {
+
+        console.error(error);
+
+        cambiarMensaje(
+            "Error al conectar con el servidor para leer socios.",
+            "danger"
+        );
+    }
+};
 
     const prepararEdicion = (socio) => {
         const idSocio = socio.id !== undefined ? socio.id : socio.Id;
@@ -81,6 +157,25 @@ function Socios() {
         e.preventDefault();
         const esEdicion = socioEditandoId !== null;
         
+
+        const hoy = new Date();
+hoy.setHours(0, 0, 0, 0);
+
+const fechaVencimiento = new Date(
+    nuevoSocio.vencimiento
+);
+
+fechaVencimiento.setHours(0, 0, 0, 0);
+
+if (fechaVencimiento < hoy) {
+
+    cambiarMensaje(
+        "La fecha de vencimiento no puede ser menor a hoy.",
+        "danger"
+    );
+
+    return;
+}   
         const url = esEdicion 
             ? `https://localhost:7099/api/socios/${socioEditandoId}` 
             : "https://localhost:7099/api/socios";
@@ -391,6 +486,7 @@ function Socios() {
                                     type="date"
                                     name="vencimiento"
                                     value={nuevoSocio.vencimiento}
+                                    min={fechaHoy}
                                     onChange={(e) => setNuevoSocio({ ...nuevoSocio, vencimiento: e.target.value })}
                                     className="form-control bg-black text-white border-secondary"
                                     required

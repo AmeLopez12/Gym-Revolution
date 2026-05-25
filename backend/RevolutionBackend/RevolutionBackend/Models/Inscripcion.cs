@@ -6,19 +6,13 @@ namespace RevolutionBackend.Models
     public class Inscripcion
     {
         public int Id { get; set; }
-
-        [Required]
+        public DateTime FechaInscripcion { get; set; }
         public int SocioId { get; set; }
-
-        [Required]
-        public int ActividadId { get; set; }
-
-        public int? InstructorId { get; set; }
-
-        [ValidateNever]
         public Socio? Socio { get; set; }
-
-        [ValidateNever]
+        public int ActividadId { get; set; }
         public Actividad? Actividad { get; set; }
+        public int HorarioActividadId { get; set; }
+
+        public HorarioActividad? HorarioActividad { get; set; }
     }
 }

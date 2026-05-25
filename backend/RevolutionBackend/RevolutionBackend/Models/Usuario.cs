@@ -6,14 +6,14 @@ namespace RevolutionBackend.Models
     {
         public int Id { get; set; }
         [MaxLength(100)]
-        public string NombreCompleto { get; set; }
+        public string? NombreCompleto { get; set; }
         [MaxLength(10)]
-        public string Telefono { get; set; }
+        public string? Telefono { get; set; }
         [MaxLength (10)]
-        public string Username { get; set; }
+        public string? Username { get; set; }
         [MinLength(8)]
         [MaxLength(20)]
-        public string Password { get; set; }
+        public string? Password { get; set; }
         public bool Activo { get; set; }
 
     }

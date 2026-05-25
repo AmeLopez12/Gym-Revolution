@@ -10,6 +10,7 @@ namespace RevolutionBackend.Controllers
     public class ActividadesController : ControllerBase
     {
         private readonly GymContext _context;
+
         public ActividadesController(GymContext context)
         {
             _context = context;
@@ -18,17 +19,25 @@ namespace RevolutionBackend.Controllers
         [HttpGet]
         public async Task<ActionResult<List<Actividad>>> Get()
         {
-            return await _context.Actividades.ToListAsync();
+            return await _context.Actividades
+                .Include(a => a.Instructor)
+                .Include(a => a.Horarios)
+                .ToListAsync();
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Actividad>> GetById(int id)
         {
-            var actividad = await _context.Actividades.FindAsync(id);
+            var actividad = await _context.Actividades
+                .Include(a => a.Instructor)
+                .Include(a => a.Horarios)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
             if (actividad == null)
             {
                 return NotFound();
             }
+
             return actividad;
         }
 
@@ -47,46 +56,31 @@ namespace RevolutionBackend.Controllers
         {
             if (id != actividad.Id)
             {
-                return BadRequest("El ID del actividad no coincide con el de la URL.");
+                return BadRequest();
             }
+
             _context.Entry(actividad).State = EntityState.Modified;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                // Si ocurre un error de concurrencia, verificamos si el actividad realmente existe
-                if (!actividadExists(id))
-                {
-                    return NotFound($"No se encontró ningún actividad con el ID {id}.");
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var actividad = await _context.Actividades.FindAsync(id);
-            if (actividad == null)
-            {
-                return NotFound($"No se encontró ningún actividad con el ID {id}.");
-            }
-
-            _context.Actividades.Remove(actividad);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
-        private bool actividadExists(int id)
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
         {
-            return _context.Actividades.Any(e => e.Id == id);
+            var actividad = await _context.Actividades.FindAsync(id);
+
+            if (actividad == null)
+            {
+                return NotFound();
+            }
+
+            _context.Actividades.Remove(actividad);
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }

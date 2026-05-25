@@ -25,20 +25,11 @@ namespace RevolutionBackend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("CupoMaximo")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("varchar(3)");
+                    b.Property<int>("CupoMaximo")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Duracion")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<string>("Horario")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
+                    b.Property<int>("Duracion")
+                        .HasColumnType("int");
 
                     b.Property<int>("InstructorId")
                         .HasColumnType("int");
@@ -48,16 +39,39 @@ namespace RevolutionBackend.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.Property<string>("Precio")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar(10)");
+                    b.Property<decimal>("Precio")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("InstructorId");
 
                     b.ToTable("Actividades");
+                });
+
+            modelBuilder.Entity("RevolutionBackend.Models.HorarioActividad", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("ActividadId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DiaSemana")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<TimeSpan>("HoraInicio")
+                        .HasColumnType("time(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActividadId");
+
+                    b.ToTable("HorariosActividades");
                 });
 
             modelBuilder.Entity("RevolutionBackend.Models.Inscripcion", b =>
@@ -69,7 +83,10 @@ namespace RevolutionBackend.Migrations
                     b.Property<int>("ActividadId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("InstructorId")
+                    b.Property<DateTime>("FechaInscripcion")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("HorarioActividadId")
                         .HasColumnType("int");
 
                     b.Property<int>("SocioId")
@@ -78,6 +95,8 @@ namespace RevolutionBackend.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ActividadId");
+
+                    b.HasIndex("HorarioActividadId");
 
                     b.HasIndex("SocioId");
 
@@ -195,11 +214,28 @@ namespace RevolutionBackend.Migrations
                     b.Navigation("Instructor");
                 });
 
+            modelBuilder.Entity("RevolutionBackend.Models.HorarioActividad", b =>
+                {
+                    b.HasOne("RevolutionBackend.Models.Actividad", "Actividad")
+                        .WithMany("Horarios")
+                        .HasForeignKey("ActividadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Actividad");
+                });
+
             modelBuilder.Entity("RevolutionBackend.Models.Inscripcion", b =>
                 {
                     b.HasOne("RevolutionBackend.Models.Actividad", "Actividad")
-                        .WithMany("Inscripciones")
+                        .WithMany()
                         .HasForeignKey("ActividadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RevolutionBackend.Models.HorarioActividad", "HorarioActividad")
+                        .WithMany()
+                        .HasForeignKey("HorarioActividadId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -211,12 +247,14 @@ namespace RevolutionBackend.Migrations
 
                     b.Navigation("Actividad");
 
+                    b.Navigation("HorarioActividad");
+
                     b.Navigation("Socio");
                 });
 
             modelBuilder.Entity("RevolutionBackend.Models.Actividad", b =>
                 {
-                    b.Navigation("Inscripciones");
+                    b.Navigation("Horarios");
                 });
 
             modelBuilder.Entity("RevolutionBackend.Models.Instructor", b =>

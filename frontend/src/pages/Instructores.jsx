@@ -8,18 +8,14 @@ import {
     Form,
     Card
 } from "react-bootstrap";
-import "./Estilos/socios.css"; 
+import "./Estilos/socios.css";
 
 function Instructores() {
-    const [vista, setVista] = useState('tabla'); 
+    const [vista, setVista] = useState('tabla');
     const [instructores, setInstructores] = useState([]);
     const [busqueda, setBusqueda] = useState("");
     const [instructorEditandoId, setInstructorEditandoId] = useState(null);
-    
-    // Estado para confirmaciones de borrado por fila
     const [confirmarEliminarId, setConfirmarEliminarId] = useState(null);
-    
-    // Mensaje inline permanente o de estado para la pantalla
     const [mensajePantalla, setMensajePantalla] = useState({ texto: "", tipo: "" });
 
     const modeloInstructorVacio = {
@@ -35,7 +31,7 @@ function Instructores() {
         setMensajePantalla({ texto, tipo });
         setTimeout(() => {
             setMensajePantalla({ texto: "", tipo: "" });
-        }, 3000); 
+        }, 3000);
     };
 
     const obtenerInstructores = async () => {
@@ -67,19 +63,19 @@ function Instructores() {
         });
         setConfirmarEliminarId(null);
         setMensajePantalla({ texto: "", tipo: "" });
-        setVista('agregar'); 
+        setVista('agregar');
     };
 
     const guardarInstructor = async (e) => {
         e.preventDefault();
         const esEdicion = instructorEditandoId !== null;
-        
-        const url = esEdicion 
-            ? `https://localhost:7099/api/instructores/${instructorEditandoId}` 
+
+        const url = esEdicion
+            ? `https://localhost:7099/api/instructores/${instructorEditandoId}`
             : "https://localhost:7099/api/instructores";
-           /* ? `https://localhost:44348/api/instructores/${instructorEditandoId}`
-            : "https://localhost:44348/api/instructores";*/
-        
+        /* ? `https://localhost:44348/api/instructores/${instructorEditandoId}`
+         : "https://localhost:44348/api/instructores";*/
+
         const metodo = esEdicion ? "PUT" : "POST";
 
         const instructorAEnviar = {
@@ -88,9 +84,9 @@ function Instructores() {
             Telefono: nuevoInstructor.telefono,
             Salario: String(nuevoInstructor.salario)
         };
-        
-        const cuerpoPeticion = esEdicion 
-            ? { ...instructorAEnviar, Id: instructorEditandoId } 
+
+        const cuerpoPeticion = esEdicion
+            ? { ...instructorAEnviar, Id: instructorEditandoId }
             : instructorAEnviar;
 
         try {
@@ -103,7 +99,7 @@ function Instructores() {
             if (response.ok) {
                 await obtenerInstructores();
                 cambiarMensaje(
-                    esEdicion ? "Instructor actualizado exitosamente" : "Instructor creado exitosamente", 
+                    esEdicion ? "Instructor actualizado exitosamente" : "Instructor creado exitosamente",
                     "success"
                 );
                 cancelarFormulario();
@@ -121,7 +117,7 @@ function Instructores() {
     const eliminarInstructor = async (id) => {
         try {
             const response = await fetch(`https://localhost:7099/api/instructores/${id}`, {
-            //const response = await fetch(`https://localhost:44348/api/instructores/${id}`, {
+                //const response = await fetch(`https://localhost:44348/api/instructores/${id}`, {
                 method: "DELETE"
             });
 
@@ -155,7 +151,7 @@ function Instructores() {
 
     return (
         <div style={{ minHeight: '100vh', position: 'relative' }}>
-            
+
             {vista === 'tabla' && (
                 <Container fluid className="py-4 text-light">
                     <Row className="mb-4">
@@ -170,13 +166,13 @@ function Instructores() {
                                         </small>
                                     )}
                                 </div>
-                                <Button 
+                                <Button
                                     className="btn-accent-success"
-                                    onClick={() => { 
-                                        setInstructorEditandoId(null); 
+                                    onClick={() => {
+                                        setInstructorEditandoId(null);
                                         setConfirmarEliminarId(null);
                                         setMensajePantalla({ texto: "", tipo: "" });
-                                        setVista('agregar'); 
+                                        setVista('agregar');
                                     }}
                                 >
                                     <i className="fa-solid fa-user-plus me-2"></i>+ Agregar Instructor
@@ -237,15 +233,15 @@ function Instructores() {
                                                             {confirmarEliminarId === idIns ? (
                                                                 // Interfaz Inline de confirmación de borrado
                                                                 <div className="d-flex justify-content-center align-items-center gap-1">
-                                                                    <Button 
-                                                                        variant="danger" 
+                                                                    <Button
+                                                                        variant="danger"
                                                                         size="sm"
                                                                         onClick={() => eliminarInstructor(idIns)}
                                                                     >
                                                                         Sí, eliminar
                                                                     </Button>
-                                                                    <Button 
-                                                                        variant="secondary" 
+                                                                    <Button
+                                                                        variant="secondary"
                                                                         size="sm"
                                                                         onClick={() => setConfirmarEliminarId(null)}
                                                                     >
@@ -254,15 +250,15 @@ function Instructores() {
                                                                 </div>
                                                             ) : (
                                                                 <>
-                                                                    <Button 
-                                                                        className="btn-outline-accent-success me-2" 
+                                                                    <Button
+                                                                        className="btn-outline-accent-success me-2"
                                                                         size="sm"
                                                                         onClick={() => prepararEdicion(instructor)}
                                                                     >
                                                                         Editar
                                                                     </Button>
-                                                                    <Button 
-                                                                        variant="outline-danger" 
+                                                                    <Button
+                                                                        variant="outline-danger"
                                                                         size="sm"
                                                                         onClick={() => {
                                                                             setConfirmarEliminarId(idIns);
@@ -302,7 +298,7 @@ function Instructores() {
                             </div>
                             <button className="boton-cerrar btn btn-sm btn-outline-secondary text-white" onClick={cancelarFormulario}>&times;</button>
                         </div>
-                        
+
                         <form className="formulario row g-3" onSubmit={guardarInstructor}>
                             <div className="grupo-entrada col-md-6">
                                 <label className="form-label text-lima fw-bold">Nombre Completo:</label>

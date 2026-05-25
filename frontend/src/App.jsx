@@ -1,28 +1,85 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css'; // ¡Importante para los estilos!
+import {
+    BrowserRouter,
+    Routes,
+    Route
+} from "react-router-dom";
 
-import Socios from './pages/Socios';
-import MainLayout from './layouts/MainLayout';
-import Dashboard from './pages/Dashboard';
-import Actividades from './pages/Actividades';
-import Instructores from './pages/Instructores';
+import MainLayout from "./layouts/MainLayout";
+
+import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import Socios from "./pages/Socios";
+import Actividades from "./pages/Actividades";
+import Instructores from "./pages/Instructores";
+import Inscripciones from "./pages/Inscripciones";
+import Estadisticas from "./pages/Estadisticas";
+
+import PrivadaLayout from "./components/PrivadaLayout";
 
 function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<MainLayout />}>
-          {/* INICIO */}
-          <Route index element={<Dashboard />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="actividades" element={<Actividades />} />
-          <Route path="socios" element={<Socios />} />
-          <Route path="instructores" element={<Instructores />} />
-        </Route>
-      </Routes>
-    </Router>
-  );
+
+    return (
+
+        <BrowserRouter>
+
+            <Routes>
+                <Route
+                    path="/login"
+                    element={<Login />}
+                />
+
+                {/* RUTAS PRIVADAS */}
+                <Route
+                    path="/"
+                    element={
+                        <PrivadaLayout>
+
+                            <MainLayout />
+
+                        </PrivadaLayout>
+                    }
+                >
+
+                    <Route
+                        index
+                        element={<Dashboard />}
+                    />
+
+                    <Route
+                        path="dashboard"
+                        element={<Dashboard />}
+                    />
+                    <Route
+                        path="socios"
+                        element={<Socios />}
+                    />
+
+                    <Route
+                        path="actividades"
+                        element={<Actividades />}
+                    />
+
+                    <Route
+                        path="instructores"
+                        element={<Instructores />}
+                    />
+
+                    <Route
+                        path="inscripciones"
+                        element={<Inscripciones />}
+                    />
+
+                    <Route
+                        path="estadisticas"
+                        element={<Estadisticas />}
+                    />
+
+                </Route>
+
+            </Routes>
+
+        </BrowserRouter>
+    );
 }
 
 export default App;

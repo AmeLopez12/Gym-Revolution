@@ -1,0 +1,70 @@
+.dashboard-container {
+    min-height: 100vh;
+    background-color: #111111;
+    color: #e0e0e0;
+}
+
+.dashboard-header {
+    background-color: #1a1a1a;
+    border: 1px solid #444444;
+    border-radius: 10px;
+    padding: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dashboard-title {
+    color: #aaff00;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.dashboard-subtitle {
+    color: #a0a0a0;
+    margin: 0;
+}
+
+.section-header {
+    border-left: 4px solid #aaff00;
+    padding-left: 15px;
+}
+
+.custom-card-dark {
+    background-color: #1a1a1a !important;
+    border: 1px solid #444444 !important;
+    border-radius: 10px !important;
+    color: #e0e0e0 !important;
+}
+
+.custom-table-dark {
+    background-color: #1a1a1a !important;
+    color: #e0e0e0 !important;
+    border-color: #444444 !important;
+}
+
+.custom-table-dark th {
+    background-color: #222222 !important;
+    color: #aaff00 !important;
+    border-bottom: 2px solid #444444 !important;
+}
+
+.custom-table-dark td {
+    vertical-align: middle;
+}
+
+.text-accent-green {
+    color: #aaff00 !important;
+}
+
+.btn-outline-accent-success {
+    color: #aaff00 !important;
+    border: 1px solid #aaff00 !important;
+    background-color: transparent !important;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-accent-success:hover {
+    background-color: #aaff00 !important;
+    color: #000000 !important;
+}

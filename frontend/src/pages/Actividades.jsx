@@ -1,634 +1,651 @@
 import { useEffect, useState } from "react";
-import {
-    Container,
-    Row,
-    Col,
-    Table,
-    Button,
-    Form,
-    Card,
-    Modal,
-} from "react-bootstrap";
-import "./Estilos/socios.css"; 
-import "./Estilos/actividades.css"; 
+import { Container, Row, Col, Card, Form, Button, Table } from "react-bootstrap";
+import "./Estilos/socios.css";
 
 function Actividades() {
+
     const [vista, setVista] = useState("tabla");
+    const [mensajePantalla, setMensajePantalla] =
+        useState({
+            texto: "",
+            tipo: ""
+        });
     const [actividades, setActividades] = useState([]);
     const [instructores, setInstructores] = useState([]);
-    const [socios, setSocios] = useState([]); 
-    const [inscripciones, setInscripciones] = useState([]); 
-    const [busqueda, setBusqueda] = useState("");
-    const [actividadEditandoId, setActividadEditandoId] = useState(null);
+    const [nombre, setNombre] = useState("");
+    const [precio, setPrecio] = useState("");
+    const [cupoMaximo, setCupoMaximo] = useState("");
+    const [instructorId, setInstructorId] = useState("");
+    const [fecha, setFecha] = useState("");
+    const [horaInicio, setHoraInicio] = useState("");
+    const [actividadEditandoId, setActividadEditandoId] =
+        useState(null);
+    const [confirmarEliminarId, setConfirmarEliminarId] =
+        useState(null);
 
-    const [showInscribirModal, setShowInscribirModal] = useState(false);
-    const [actividadParaInscribir, setActividadParaInscribir] = useState(null);
-    const [inscripcion, setInscripcion] = useState({ SocioId: "", ActividadId: "", InstructorId: "" });
+    const obtenerActividades = async () => {
 
-    const [showInscritosModal, setShowInscritosModal] = useState(false);
-    const [actividadSeleccionadaInscritos, setActividadSeleccionadaInscritos] = useState(null);
-    const [confirmarDeinscribirId, setConfirmarDeinscribirId] = useState(null); // Guarda el ID de la inscripción a borrar
-
-    const [confirmarEliminarId, setConfirmarEliminarId] = useState(null);
-
-    const [mensajePantalla, setMensajePantalla] = useState({ texto: "", tipo: "" });
-
-    const modeloActividadVacio = {
-        nombre: "",
-        horario: "",
-        duracion: "",
-        instructorId: "",
-        precio: "",
-        cupoMaximo: "",
+        const response = await fetch(
+            "https://localhost:7099/api/actividades"
+        );
+        const data = await response.json();
+        setActividades(data);
     };
 
-    const [nuevaActividad, setNuevaActividad] = useState(modeloActividadVacio);
-
     const cambiarMensaje = (texto, tipo = "info") => {
-        setMensajePantalla({ texto, tipo });
+
+        setMensajePantalla({
+            texto,
+            tipo
+        });
         setTimeout(() => {
-            setMensajePantalla({ texto: "", tipo: "" });
+            setMensajePantalla({
+                texto: "",
+                tipo: ""
+            });
         }, 3000);
     };
 
-    // Al cargar la pantalla, traemos los datos del Backend
-    useEffect(() => {
-        obtenerActividades();
-        obtenerInstructores();
-        obtenerSocios();
-        obtenerInscripciones(); 
-    }, []);
-
     const obtenerInstructores = async () => {
-        try {
-            const res = await fetch("https://localhost:7099/api/instructores");
-            //const res = await fetch("https://localhost:44348/api/instructores");
-            if (res.ok) {
-                const data = await res.json();
-                setInstructores(data);
-            }
-        } catch (error) {
-            console.error("Error al obtener instructores:", error);
-        }
+
+        const response = await fetch(
+            "https://localhost:7099/api/instructores"
+        );
+        const data = await response.json();
+        setInstructores(data);
     };
 
-    const obtenerActividades = async () => {
-        try {
-            const res = await fetch("https://localhost:7099/api/actividades");
-            //const res = await fetch("https://localhost:44348/api/actividades");
-            if (res.ok) {
-                const data = await res.json();
-                setActividades(data);
-            }
-        } catch (error) {
-            console.error("Error al obtener actividades:", error);
-        }
-    };
+    const prepararEdicion = (actividad, horario) => {
 
-    const obtenerSocios = async () => {
-        try {
-            const res = await fetch("https://localhost:7099/api/socios");
-            //const res = await fetch("https://localhost:44348/api/socios");
-            if (res.ok) {
-                const data = await res.json();
-                setSocios(data);
-            }
-        } catch (error) {
-            console.error("Error al obtener socios:", error);
-        }
-    };
-
-    const obtenerInscripciones = async () => {
-        try {
-            const res = await fetch("https://localhost:7099/api/inscripciones");
-            //const res = await fetch("https://localhost:44348/api/inscripciones");
-            if (res.ok) {
-                const data = await res.json();
-                setInscripciones(data);
-            }
-        } catch (error) {
-            console.error("Error al obtener inscripciones:", error);
-        }
-    };
-
-    const manejarCambioInput = (e) => {
-        const { name, value } = e.target;
-        setNuevaActividad({ ...nuevaActividad, [name]: value });
-    };
-
-    const guardarActividad = async (e) => {
-        e.preventDefault();
-
-        const instructorIdValue = Number(nuevaActividad.instructorId);
-        const cupoMaximoValue = nuevaActividad.cupoMaximo ?? nuevaActividad.CupoMaximo;
-        const precioValue = nuevaActividad.precio ?? nuevaActividad.Precio;
-
-        if (
-            !nuevaActividad.nombre ||
-            !nuevaActividad.horario ||
-            !nuevaActividad.duracion ||
-            !precioValue ||
-            !cupoMaximoValue ||
-            Number.isNaN(instructorIdValue) || 
-            instructorIdValue <= 0
-        ) {
-            cambiarMensaje("Completa todos los campos y selecciona un instructor válido.", "danger");
-            return;
-        }
-
-        try {
-            const url = actividadEditandoId
-                ? `https://localhost:7099/api/actividades/${actividadEditandoId}`
-                : "https://localhost:7099/api/actividades";
-                /*? `https://localhost:44348/api/actividades/${actividadEditandoId}`
-                : "https://localhost:44348/api/actividades";*/
-
-            const metodo = actividadEditandoId ? "PUT" : "POST";
-
-            const actividadAEnviar = {
-                Nombre: nuevaActividad.nombre,
-                Horario: nuevaActividad.horario.slice(0, 20), 
-                Duracion: nuevaActividad.duracion.slice(0, 20),
-                CupoMaximo: String(cupoMaximoValue).slice(0, 3),
-                Precio: String(precioValue).slice(0, 10),
-                InstructorId: instructorIdValue,
-                Instructor: null, 
-                Inscripciones: []
-            };
-
-            const cuerpo = actividadEditandoId ? { ...actividadAEnviar, Id: actividadEditandoId } : actividadAEnviar;
-
-            const res = await fetch(url, {
-                method: metodo,
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(cuerpo),
-            });
-
-            if (res.ok) {
-                cambiarMensaje(actividadEditandoId ? "¡Actividad actualizada!" : "¡Actividad agregada!", "success");
-                cancelarFormulario();
-                await obtenerActividades(); 
-            } else {
-                const errorText = await res.text();
-                cambiarMensaje(`Error: ${res.status} ${errorText}`, "danger");
-            }
-        } catch (error) {
-            cambiarMensaje("No se pudo conectar con el servidor.", "danger");
-        }
-    };
-
-    const iniciarEdicion = (actividad) => {
-        const id = actividad.id ?? actividad.Id;
-        const nombre = actividad.nombre ?? actividad.Nombre ?? "";
-        const horarioOriginal = actividad.horario ?? actividad.Horario ?? "";
-        const duracion = actividad.duracion ?? actividad.Duracion ?? "";
-        const cupo = actividad.cupoMaximo ?? actividad.CupoMaximo ?? "";
-        const precio = actividad.precio ?? actividad.Precio ?? "";
-        const instructorId = actividad.instructorId ?? actividad.InstructorId ?? "";
-
-        setActividadEditandoId(id);
-        setNuevaActividad({ nombre, horario: horarioOriginal, duracion, instructorId, precio, cupoMaximo: cupo });
+        setActividadEditandoId(actividad.id);
+        setNombre(actividad.nombre);
+        setPrecio(actividad.precio);
+        setCupoMaximo(actividad.cupoMaximo);
+        setInstructorId(actividad.instructorId);
+        setFecha(
+            horario.fecha.split("T")[0]
+        );
+        setHoraInicio(
+            horario.horaInicio.substring(0, 5)
+        );
         setVista("agregar");
     };
 
-    const eliminarActividad = async (id) => {
-        try {
-            const res = await fetch(`https://localhost:7099/api/actividades/${id}`, { 
-            //const res = await fetch(`https://localhost:44348/api/actividades/${id}`, {
-                method: "DELETE",
-            });
-            if (res.ok) {
-                cambiarMensaje("Actividad eliminada con éxito.", "success");
-                obtenerActividades();
-            }
-        } catch (error) {
-            cambiarMensaje("Error al intentar eliminar.", "danger");
-        }
-        setConfirmarEliminarId(null);
-    };
-    
-    const cancelarFormulario = () => {
-        setNuevaActividad(modeloActividadVacio);
+    const limpiarFormulario = () => {
+
+        setNombre("");
+        setPrecio("");
+        setCupoMaximo("");
+        setInstructorId("");
+        setFecha("");
+        setHoraInicio("");
         setActividadEditandoId(null);
         setVista("tabla");
     };
 
-    const abrirInscribirModal = (actividad) => {
-        const actId = actividad.id ?? actividad.Id;
-        const instId = actividad.instructorId ?? actividad.InstructorId ?? "";
-        
-        const instructorAsignado = instructores.find(ins => Number(ins.id ?? ins.Id) === Number(instId));
-        
-        setActividadParaInscribir({
-            ...actividad,
-            nombre: actividad.nombre ?? actividad.Nombre,
-            horario: actividad.horario ?? actividad.Horario,
-            nombreInstructor: instructorAsignado ? (instructorAsignado.nombreCompleto ?? instructorAsignado.NombreCompleto ?? instructorAsignado.nombre) : "No asignado"
-        });
-        
-        setInscripcion({ SocioId: "", ActividadId: actId, InstructorId: instId || "" });
-        setShowInscribirModal(true);
-    };
+    const guardarActividad = async () => {
 
-    const cerrarInscribirModal = () => {
-        setShowInscribirModal(false);
-        setActividadParaInscribir(null);
-        setInscripcion({ SocioId: "", ActividadId: "", InstructorId: "" });
-    };
+        if (
+            !nombre ||
+            !precio ||
+            !cupoMaximo ||
+            !instructorId ||
+            !fecha ||
+            !horaInicio
+        ) {
+            cambiarMensaje(
+                actividadEditandoId
+                    ? "Actividad actualizada"
+                    : "Actividad creada",
+                "success"
+            );
+        }
 
-    const guardarInscripcion = async (e) => {
-        if (e && e.preventDefault) e.preventDefault();
-        
-        const socioId = Number(inscripcion.SocioId);
-        const actividadId = Number(inscripcion.ActividadId);
-        let instructorId = actividadParaInscribir ? (actividadParaInscribir.instructorId ?? actividadParaInscribir.InstructorId) : null;
-        
-        const fechaHoy = new Date().toISOString().split('T')[0];
-        
-        if (!socioId || !actividadId) {
-            cambiarMensaje("Por favor, selecciona un socio válido.", "danger");
+        const fechaHoraSeleccionada =
+            new Date(`${fecha}T${horaInicio}`);
+        if (fechaHoraSeleccionada < new Date()) {
+            cambiarMensaje(
+                "No puedes registrar actividades pasadas",
+                "danger"
+            );
             return;
         }
 
-        const yaInscrito = inscripciones.some(
-            (i) => Number(i.socioId ?? i.SocioId) === socioId && Number(i.actividadId ?? i.ActividadId) === actividadId
-        );
+        const body = {
 
-        if (yaInscrito) {
-            cambiarMensaje("Este socio ya se encuentra inscrito en esta actividad.", "danger");
-            return;
-        }
+            nombre,
+            precio: parseFloat(precio),
+
+            cupoMaximo: parseInt(cupoMaximo),
+
+            instructorId: parseInt(instructorId),
+
+            duracion: 60,
+
+            horarios: [
+                {
+                    fecha,
+                    horaInicio,
+                    diaSemana:
+                        new Date(fecha).getDay()
+                }
+            ]
+        };
 
         try {
-            const payload = {
-                SocioId: socioId,
-                ActividadId: actividadId,
-                InstructorId: instructorId ? Number(instructorId) : null,
-                FechaInscripcion: fechaHoy,
-                Socio: null,      
-                Actividad: null    
-            };
 
-            const res = await fetch("https://localhost:7099/api/inscripciones", {
-            //const res = await fetch("https://localhost:44348/api/inscripciones", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
+            const response = await fetch(
 
-            if (res.ok) {
-                cambiarMensaje("¡Socio inscrito con éxito!", "success");
-                cerrarInscribirModal();
-                
-                await obtenerActividades(); 
-                await obtenerInscripciones(); 
-            } else {
-                cambiarMensaje(`Error del servidor al inscribir`, "danger");
+                actividadEditandoId
+                    ? `https://localhost:7099/api/actividades/${actividadEditandoId}`
+                    : "https://localhost:7099/api/actividades",
+
+                {
+                    method:
+                        actividadEditandoId
+                            ? "PUT"
+                            : "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify(
+
+                        actividadEditandoId
+                            ? {
+                                ...body,
+                                id: actividadEditandoId
+                            }
+                            : body
+                    )
+                }
+            );
+
+            if (response.ok) {
+
+                obtenerActividades();
+
+                limpiarFormulario();
+
+                cambiarMensaje(
+                    actividadEditandoId
+                        ? "Actividad actualizada"
+                        : "Actividad creada",
+                    "success"
+                );
             }
+
         } catch (error) {
-            cambiarMensaje("No se pudo conectar al servidor.", "danger");
+
+            console.error(error);
         }
     };
 
-    const abrirInscritosModal = (actividad) => {
-        setActividadSeleccionadaInscritos(actividad);
-        setConfirmarDeinscribirId(null);
-        setShowInscritosModal(true);
-    };
+    const eliminarActividad = async (id) => {
 
-    const cerrarInscritosModal = () => {
-        setShowInscritosModal(false);
-        setActividadSeleccionadaInscritos(null);
-        setConfirmarDeinscribirId(null);
-    };
+        try {
 
-    const eliminarInscripcion = async (idInscripcion) => {
-    // 1. Quitamos inmediatamente el estado de confirmación para limpiar los botones "Sí/No"
-    setConfirmarDeinscribirId(null);
+            const response = await fetch(
+                `https://localhost:7099/api/actividades/${id}`,
+                {
+                    method: "DELETE"
+                }
+            );
 
-    try {
-        const res = await fetch(`https://localhost:7099/api/inscripciones/${idInscripcion}`, {
-        //const res = await fetch(`https://localhost:44348/api/inscripciones/${idInscripcion}`, {
-            method: "DELETE",
-        });
+            if (response.ok) {
 
-        if (res.ok) {
-            cambiarMensaje("Socio desinscrito correctamente.", "success");
-            
-        
-            if (inscritosDeActividadActual.length <= 1) {
-                setShowInscritosModal(false);
-                setActividadSeleccionadaInscritos(null);
+                obtenerActividades();
+
+                setConfirmarEliminarId(null);
+
+                cambiarMensaje("Actividad eliminada", "success");
             }
 
-            await obtenerInscripciones(); 
-            await obtenerActividades();   
-        } else {
-            cambiarMensaje("Error al intentar quitar la inscripción en el servidor.", "danger");
+        } catch (error) {
+
+            console.error(error);
         }
-    } catch (error) {
-        console.error("Error en la petición DELETE:", error);
-        cambiarMensaje("No se pudo conectar al servidor.", "danger");
-    }
-};
+    };
 
-    const actividadesFiltradas = actividades.filter((act) => {
-        const nombre = (act.nombre ?? act.Nombre ?? "").toString().toLowerCase();
-        const instructorAsignado = instructores.find(ins => Number(ins.id ?? ins.Id) === Number(act.instructorId ?? act.InstructorId));
-        const nombreInst = (instructorAsignado?.nombreCompleto ?? instructorAsignado?.NombreCompleto ?? instructorAsignado?.nombre ?? "").toLowerCase();
+    useEffect(() => {
 
-        return nombre.includes(busqueda.toLowerCase()) || nombreInst.includes(busqueda.toLowerCase());
-    });
+        obtenerActividades();
 
-    const inscritosDeActividadActual = actividadSeleccionadaInscritos
-        ? inscripciones.filter(i => Number(i.actividadId ?? i.ActividadId) === Number(actividadSeleccionadaInscritos.id ?? actividadSeleccionadaInscritos.Id))
-        : [];
+        obtenerInstructores();
+
+    }, []);
 
     return (
-        <div style={{ minHeight: '100vh', position: 'relative' }}>
-            {vista === 'tabla' && (
+        <div style={{ minHeight: "100vh", position: "relative" }}>
+            {vista === "tabla" && (
+
                 <Container fluid className="py-4 text-light">
+
                     <Row className="mb-4">
+
                         <Col>
+
                             <div className="d-flex justify-content-between align-items-center p-4 rounded header-container-custom">
+
                                 <div>
-                                    <h1 className="text-accent-green fw-bold mb-1">Actividades</h1>
-                                    <p className="text-muted-gray mb-0">Gestión de actividades</p>
-                                    {mensajePantalla.texto && (
-                                        <small className={`fw-semibold text-${mensajePantalla.tipo} d-block mt-1`}>
-                                            {mensajePantalla.texto}
-                                        </small>
-                                    )}
+
+                                    <h1 className="text-accent-green fw-bold mb-1">
+                                        Actividades
+                                    </h1>
+
+                                    <p className="text-muted-gray mb-0">
+                                        Gestión de actividades
+                                    </p>
+
+                                    {
+                                        mensajePantalla.texto && (
+
+                                            <small
+                                                className={`fw-semibold text-${mensajePantalla.tipo} d-block mt-1`}
+                                            >
+                                                {mensajePantalla.texto}
+                                            </small>
+
+                                        )
+                                    }
+
                                 </div>
+
                                 <Button
                                     className="btn-accent-success"
                                     onClick={() => {
-                                        setActividadEditandoId(null);
+
+                                        limpiarFormulario();
+
                                         setConfirmarEliminarId(null);
-                                        setVista('agregar');
+
+                                        setMensajePantalla({
+                                            texto: "",
+                                            tipo: ""
+                                        });
+
+                                        setVista("agregar");
                                     }}
                                 >
-                                    <i className="fa-solid fa-dumbbell me-2"></i>+ Agregar Actividad
-                                </Button>
-                            </div>
-                        </Col>
-                    </Row>
+                                    <i className="fa-solid fa-plus me-2"></i>
 
-                    <Row className="mb-4">
-                        <Col>
-                            <Card className="custom-card-dark">
-                                <Card.Body>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Buscar actividad por nombre o instructor..."
-                                        value={busqueda}
-                                        onChange={(e) => setBusqueda(e.target.value)}
-                                        className="custom-input-dark"
-                                    />
-                                </Card.Body>
-                            </Card>
+                                    + Agregar Actividad
+                                </Button>
+
+                            </div>
+
                         </Col>
+
                     </Row>
 
                     <Row>
+
                         <Col>
+
                             <Card className="custom-card-dark">
+
                                 <Card.Body className="p-0">
-                                    <Table striped bordered hover responsive variant="dark" className="custom-table-dark mb-0 text-center">
+
+                                    <Table
+                                        striped
+                                        bordered
+                                        hover
+                                        responsive
+                                        variant="dark"
+                                        className="custom-table-dark mb-0"
+                                    >
+
                                         <thead>
+
                                             <tr>
-                                                <th>Nombre</th>
-                                                <th>Horario</th>
-                                                <th>Duración</th>
-                                                <th>Instructor</th>
+
+                                                <th>Actividad</th>
                                                 <th>Precio</th>
-                                                <th>Cupo Máx</th>
+                                                <th>Cupo</th>
+                                                <th>Fecha</th>
+                                                <th>Hora</th>
+                                                <th>Instructor</th>
                                                 <th>Acciones</th>
+
                                             </tr>
+
                                         </thead>
+
                                         <tbody>
-                                            {actividadesFiltradas.length > 0 ? (
-                                                actividadesFiltradas.map((act) => {
-                                                    const idReal = act.id ?? act.Id;
-                                                    const inst = instructores.find(i => Number(i.id ?? i.Id) === Number(act.instructorId ?? act.InstructorId));
-                                                    const nombreInstructor = inst ? (inst.nombreCompleto ?? inst.NombreCompleto ?? inst.nombre) : "Sin asignar";
-                                                    const totalInscritos = inscripciones.filter(i => Number(i.actividadId ?? i.ActividadId) === Number(idReal)).length;
-                                                    const cupoMax = act.cupoMaximo ?? act.CupoMaximo ?? 0;
 
-                                                    return (
-                                                        <tr key={idReal}>
-                                                            <td>{act.nombre ?? act.Nombre}</td>
-                                                            <td>{act.horario ?? act.Horario}</td>
-                                                            <td>{act.duracion ?? act.Duracion}</td>
-                                                            <td>{nombreInstructor}</td>
-                                                            <td>${act.precio ?? act.Precio}</td>
-                                                            <td className="fw-bold text-accent-green">
-                                                                {totalInscritos} / {cupoMax}
-                                                            </td>
+                                            {
+                                                actividades.map((a) => (
+
+                                                    a.horarios?.map((h) => (
+
+                                                        <tr key={h.id}>
+
                                                             <td>
-                                                                {confirmarEliminarId === idReal ? (
-                                                                    <div className="d-flex justify-content-center align-items-center gap-1">
-                                                                        <Button variant="danger" size="sm" onClick={() => eliminarActividad(idReal)}>Sí</Button>
-                                                                        <Button variant="secondary" size="sm" onClick={() => setConfirmarEliminarId(null)}>No</Button>
-                                                                    </div>
-                                                                ) : (
-                                                                    <div className="d-flex justify-content-center gap-2 align-items-center flex-wrap">
-                                                                        <Button className="btn-accent-success" size="sm" onClick={() => abrirInscribirModal(act)}>
-                                                                            <i className="fa-solid fa-user-plus me-1"></i> Inscribir
-                                                                        </Button>
-                                                                        <Button variant="info" size="sm" className="text-white fw-semibold" onClick={() => abrirInscritosModal(act)}>
-                                                                            <i className="fa-solid fa-users me-1"></i> Inscritos
-                                                                        </Button>
-                                                                        <Button className="btn-outline-accent-success" size="sm" onClick={() => iniciarEdicion(act)}>Editar</Button>
-                                                                        <Button variant="outline-danger" size="sm" onClick={() => setConfirmarEliminarId(idReal)}>Eliminar</Button>
-                                                                    </div>
-                                                                )}
+                                                                {a.nombre}
                                                             </td>
+
+                                                            <td>
+                                                                ${a.precio}
+                                                            </td>
+
+                                                            <td>
+                                                                {a.cupoMaximo}
+                                                            </td>
+
+                                                            <td>
+                                                                {
+                                                                    new Date(h.fecha)
+                                                                        .toLocaleDateString("es-MX")
+                                                                }
+                                                            </td>
+
+                                                            <td>
+                                                                {
+                                                                    h.horaInicio?.substring(0, 5)
+                                                                }
+                                                            </td>
+
+                                                            <td>
+                                                                {
+                                                                    a.instructor?.nombreCompleto
+                                                                }
+                                                            </td>
+
+                                                            <td>
+
+                                                                {
+                                                                    confirmarEliminarId === a.id
+                                                                        ? (
+
+                                                                            <div className="d-flex gap-2">
+
+                                                                                <Button
+                                                                                    variant="danger"
+                                                                                    size="sm"
+                                                                                    onClick={() =>
+                                                                                        eliminarActividad(a.id)
+                                                                                    }
+                                                                                >
+                                                                                    Sí
+                                                                                </Button>
+
+                                                                                <Button
+                                                                                    variant="secondary"
+                                                                                    size="sm"
+                                                                                    onClick={() =>
+                                                                                        setConfirmarEliminarId(null)
+                                                                                    }
+                                                                                >
+                                                                                    No
+                                                                                </Button>
+
+                                                                            </div>
+
+                                                                        )
+                                                                        : (
+
+                                                                            <>
+
+                                                                                <Button
+                                                                                    className="btn-outline-accent-success me-2"
+                                                                                    size="sm"
+                                                                                    onClick={() =>
+                                                                                        prepararEdicion(a, h)
+                                                                                    }
+                                                                                >
+                                                                                    Editar
+                                                                                </Button>
+
+                                                                                <Button
+                                                                                    variant="outline-danger"
+                                                                                    size="sm"
+                                                                                    onClick={() =>
+                                                                                        setConfirmarEliminarId(a.id)
+                                                                                    }
+                                                                                >
+                                                                                    Eliminar
+                                                                                </Button>
+
+                                                                            </>
+
+                                                                        )
+                                                                }
+
+                                                            </td>
+
                                                         </tr>
-                                                    );
-                                                })
-                                            ) : (
-                                                <tr>
-                                                    <td colSpan="7" className="text-muted">No se encontraron actividades registradas.</td>
-                                                </tr>
-                                            )}
+
+                                                    ))
+
+                                                ))
+                                            }
+
                                         </tbody>
+
                                     </Table>
+
                                 </Card.Body>
+
                             </Card>
+
                         </Col>
+
                     </Row>
+
                 </Container>
+
             )}
 
-            {vista === 'agregar' && (
+            {vista === "agregar" && (
+
                 <div className="contenedor-formulario d-flex justify-content-center align-items-center py-5">
-                    <div className="bloque-formulario card bg-dark text-white p-4 shadow-lg border-secondary" style={{ maxWidth: '650px', width: '100%' }}>
-                        <div className="encabezado-formulario d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-2">
+
+                    <div
+                        className="bloque-formulario card bg-dark text-white p-4 shadow-lg border-secondary"
+                        style={{
+                            maxWidth: "700px",
+                            width: "100%"
+                        }}
+                    >
+
+                        <div className="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-2">
+
                             <div>
-                                <h2 className="text-lima h3 mb-0">{actividadEditandoId !== null ? 'Editar Actividad' : 'Agregar Actividad'}</h2>
+
+                                <h2 className="text-accent-green h3 mb-0">
+
+                                    {
+                                        actividadEditandoId
+                                            ? "Editar Actividad"
+                                            : "Agregar Actividad"
+                                    }
+
+                                </h2>
+
+                                {
+                                    mensajePantalla.texto && (
+
+                                        <small
+                                            className={`fw-semibold text-${mensajePantalla.tipo} d-block mt-1`}
+                                        >
+                                            {mensajePantalla.texto}
+                                        </small>
+
+                                    )
+                                }
+
                             </div>
-                            <button className="boton-cerrar btn btn-sm btn-outline-secondary text-white" onClick={cancelarFormulario}>&times;</button>
+
+                            <button
+                                className="btn btn-sm btn-outline-secondary text-white"
+                                onClick={limpiarFormulario}
+                            >
+                                &times;
+                            </button>
+
                         </div>
 
-                        <form className="formulario row g-3" onSubmit={guardarActividad}>
-                            <div className="grupo-entrada col-md-6">
-                                <label className="form-label text-lima fw-bold">Nombre de la Actividad:</label>
-                                <input type="text" name="nombre" placeholder="Ej: Spinning, Zumba, Crossfit" maxLength={100} value={nuevaActividad.nombre} onChange={manejarCambioInput} className="form-control bg-black text-white border-secondary" required />
-                            </div>
-                            
-                            <div className="grupo-entrada col-md-6">
-                                <label className="form-label text-lima fw-bold">Duración:</label>
-                                <input type="text" name="duracion" placeholder="Ej: 50 min" maxLength={20} value={nuevaActividad.duracion} onChange={manejarCambioInput} className="form-control bg-black text-white border-secondary" required />
-                            </div>
+                        <Form className="row g-3">
 
-                            <div className="grupo-entrada col-12">
-                                <label className="form-label text-lima fw-bold">Horario de la Actividad:</label>
-                                <input 
-                                    type="text" 
-                                    name="horario" 
-                                    placeholder="Ej: Lunes 19:00, Mar-Jue 08:00" 
-                                    maxLength={20} 
-                                    value={nuevaActividad.horario} 
-                                    onChange={manejarCambioInput} 
-                                    className="form-control bg-black text-white border-secondary" 
-                                    required 
+                            <div className="col-md-6">
+
+                                <label className="form-label text-accent-green fw-bold">
+                                    Nombre
+                                </label>
+
+                                <Form.Control
+                                    placeholder="Ej: Crossfit"
+                                    value={nombre}
+                                    onChange={(e) =>
+                                        setNombre(e.target.value)
+                                    }
+                                    className="custom-input-dark"
                                 />
-                                <Form.Text className="text-muted">
-                                    Por favor utiliza formatos breves que no superen los 20 caracteres (Ej: "Lunes 19:00").
-                                </Form.Text>
+
                             </div>
 
-                            <div className="grupo-entrada col-md-6">
-                                <label className="form-label text-lima fw-bold">Instructor:</label>
-                                <select name="instructorId" value={nuevaActividad.instructorId} onChange={(e) => setNuevaActividad(prev => ({ ...prev, instructorId: e.target.value }))} className="form-select bg-black text-white border-secondary" required>
-                                    <option value="">Seleccione instructor</option>
-                                    {instructores.map((ins) => {
-                                        const id = ins.id ?? ins.Id;
-                                        const nombre = ins.nombreCompleto ?? ins.NombreCompleto ?? ins.nombre ?? ins.Nombre;
-                                        return <option key={id} value={id}>{nombre}</option>;
-                                    })}
-                                </select>
+                            <div className="col-md-3">
+
+                                <label className="form-label text-accent-green fw-bold">
+                                    Precio
+                                </label>
+
+                                <Form.Control
+                                    type="number"
+                                    placeholder="500"
+                                    value={precio}
+                                    onChange={(e) =>
+                                        setPrecio(e.target.value)
+                                    }
+                                    className="custom-input-dark"
+                                />
+
                             </div>
-                            <div className="grupo-entrada col-md-3">
-                                <label className="form-label text-lima fw-bold">Precio ($):</label>
-                                <input type="text" name="precio" placeholder="Ej: 350" maxLength={10} value={nuevaActividad.precio ?? nuevaActividad.Precio ?? ""} onChange={manejarCambioInput} className="form-control bg-black text-white border-secondary" required />
+
+                            <div className="col-md-3">
+
+                                <label className="form-label text-accent-green fw-bold">
+                                    Cupo Máximo
+                                </label>
+
+                                <Form.Control
+                                    type="number"
+                                    placeholder="10"
+                                    value={cupoMaximo}
+                                    onChange={(e) =>
+                                        setCupoMaximo(e.target.value)
+                                    }
+                                    className="custom-input-dark"
+                                />
+
                             </div>
-                            <div className="grupo-entrada col-md-3">
-                                <label className="form-label text-lima fw-bold">Cupo Máximo:</label>
-                                <input type="text" name="cupoMaximo" placeholder="Ej: 20" maxLength={3} value={nuevaActividad.cupoMaximo ?? nuevaActividad.CupoMaximo ?? ""} onChange={manejarCambioInput} className="form-control bg-black text-white border-secondary" required />
+
+                            <div className="col-md-12">
+
+                                <label className="form-label text-accent-green fw-bold">
+                                    Instructor
+                                </label>
+
+                                <Form.Select
+                                    value={instructorId}
+                                    onChange={(e) =>
+                                        setInstructorId(e.target.value)
+                                    }
+                                    className="custom-input-dark"
+                                >
+
+                                    <option value="">
+                                        Selecciona instructor
+                                    </option>
+
+                                    {
+                                        instructores.map((i) => (
+
+                                            <option
+                                                key={i.id}
+                                                value={i.id}
+                                            >
+                                                {i.nombreCompleto}
+                                            </option>
+
+                                        ))
+                                    }
+
+                                </Form.Select>
+
                             </div>
+
+                            <div className="col-md-6">
+
+                                <label className="form-label text-accent-green fw-bold">
+                                    Fecha
+                                </label>
+
+                                <Form.Control
+                                    type="date"
+                                    value={fecha}
+                                    onChange={(e) =>
+                                        setFecha(e.target.value)
+                                    }
+                                    className="custom-input-dark"
+                                />
+
+                            </div>
+
+                            <div className="col-md-6">
+
+                                <label className="form-label text-accent-green fw-bold">
+                                    Hora Inicio
+                                </label>
+
+                                <Form.Control
+                                    type="time"
+                                    value={horaInicio}
+                                    onChange={(e) =>
+                                        setHoraInicio(e.target.value)
+                                    }
+                                    className="custom-input-dark"
+                                />
+
+                            </div>
+
                             <div className="col-12 mt-4 d-flex gap-2">
-                                <Button type="submit" className="btn-accent-success flex-grow-1 fw-bold py-2">{actividadEditandoId !== null ? 'Guardar Cambios' : 'Guardar Actividad'}</Button>
-                                <Button type="button" variant="outline-danger" className="py-2 px-4" onClick={cancelarFormulario}>Cancelar</Button>
+
+                                <Button
+                                    type="button"
+                                    className="btn-accent-success flex-grow-1 fw-bold py-2"
+                                    onClick={guardarActividad}
+                                >
+
+                                    {
+                                        actividadEditandoId
+                                            ? "Guardar Cambios"
+                                            : "Guardar Actividad"
+                                    }
+
+                                </Button>
+
+                                <Button
+                                    type="button"
+                                    variant="outline-danger"
+                                    className="py-2 px-4"
+                                    onClick={limpiarFormulario}
+                                >
+                                    Cancelar
+                                </Button>
+
                             </div>
-                        </form>
+
+                        </Form>
+
                     </div>
+
                 </div>
+
             )}
 
-            {/* Modal de inscripción */}
-            <Modal show={showInscribirModal} onHide={cerrarInscribirModal} centered>
-                <Modal.Header closeButton className="bg-dark text-white border-secondary">
-                    <Modal.Title className="fw-bold text-lima">Inscribir Socio a Actividad</Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="bg-dark text-white">
-                    <Form id="formInscripcion" onSubmit={guardarInscripcion}>
-                        {actividadParaInscribir && (
-                            <div className="p-3 bg-black rounded mb-3 border border-secondary text-light">
-                                <p className="mb-1"><strong>Actividad:</strong> {actividadParaInscribir.nombre}</p>
-                                <p className="mb-1"><strong>Instructor:</strong> {actividadParaInscribir.nombreInstructor}</p>
-                                <p className="mb-0"><strong>Horario:</strong> {actividadParaInscribir.horario}</p>
-                            </div>
-                        )}
-                        <div className="mb-3">
-                            <label className="form-label fw-bold text-lima">Socio a Inscribir:</label>
-                            <select 
-                                name="SocioId" 
-                                value={inscripcion.SocioId} 
-                                onChange={(e) => setInscripcion(prev => ({ ...prev, SocioId: e.target.value }))} 
-                                className="form-select bg-black text-white border-secondary"
-                                required
-                            >
-                                <option value="">-- Selecciona un socio --</option>
-                                {socios.map((s) => {
-                                    const id = s.id ?? s.Id;
-                                    const nombre = s.nombreCompleto ?? s.NombreCompleto ?? s.nombre ?? s.Nombre;
-                                    return <option key={id} value={id}>{nombre}</option>;
-                                })}
-                            </select>
-                        </div>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer className="bg-dark border-secondary">
-                    <Button variant="outline-secondary text-white" onClick={cerrarInscribirModal}>Cancelar</Button>
-                    <Button variant="success" type="submit" form="formInscripcion">Confirmar Inscripción</Button>
-                </Modal.Footer>
-            </Modal>
-
-            {/* NUEVO MODAL: Lista de Socios Inscritos y Deinscripción */}
-            <Modal show={showInscritosModal} onHide={cerrarInscritosModal} centered size="md">
-                <Modal.Header closeButton className="bg-dark text-white border-secondary">
-                    <Modal.Title className="fw-bold text-lima">
-                        Socios Inscritos — {actividadSeleccionadaInscritos ? (actividadSeleccionadaInscritos.nombre ?? actividadSeleccionadaInscritos.Nombre) : ""}
-                    </Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="bg-dark text-white p-0">
-                    <div style={{ maxHeigth: '400px', overflowY: 'auto' }}>
-                        <Table striped bordered hover variant="dark" className="custom-table-dark mb-0 text-center">
-                            <thead>
-                                <tr>
-                                    <th>Nombre del Socio</th>
-                                    <th>Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {inscritosDeActividadActual.length > 0 ? (
-                                    inscritosDeActividadActual.map((ins) => {
-                                        const idInscripcion = ins.id ?? ins.Id;
-                                        const socioId = ins.socioId ?? ins.SocioId;
-                                        
-                                        // Buscar el nombre del socio correspondiente en el estado local de socios
-                                        const socioMatch = socios.find(s => Number(s.id ?? s.Id) === Number(socioId));
-                                        const nombreSocio = socioMatch 
-                                            ? (socioMatch.nombreCompleto ?? socioMatch.NombreCompleto ?? socioMatch.nombre) 
-                                            : `Socio ID: ${socioId}`;
-
-                                        return (
-                                            <tr key={idInscripcion}>
-                                                <td className="align-middle text-start ps-3">{nombreSocio}</td>
-                                                <td className="align-middle">
-                                                    {confirmarDeinscribirId === idInscripcion ? (
-                                                        <div className="d-flex justify-content-center gap-1">
-                                                            <Button variant="danger" size="sm" onClick={() => eliminarInscripcion(idInscripcion)}>Sí</Button>
-                                                            <Button variant="secondary" size="sm" onClick={() => setConfirmarDeinscribirId(null)}>No</Button>
-                                                        </div>
-                                                    ) : (
-                                                        <Button 
-                                                            variant="outline-danger" 
-                                                            size="sm" 
-                                                            onClick={() => setConfirmarDeinscribirId(idInscripcion)}
-                                                        >
-                                                            <i className="fa-solid fa-user-minus"></i> Quitar
-                                                        </Button>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        );
-                                    })
-                                ) : (
-                                    <tr>
-                                        <td colSpan="2" className="text-muted py-3">No hay socios inscritos en esta actividad.</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </Table>
-                    </div>
-                </Modal.Body>
-                <Modal.Footer className="bg-dark border-secondary">
-                    <Button variant="secondary" onClick={cerrarInscritosModal}>Cerrar</Button>
-                </Modal.Footer>
-            </Modal>
         </div>
     );
 }

@@ -29,17 +29,18 @@ const MainLayout = () => {
                 className={getLinkClass('/actividades')}>
                 Actividades
               </Nav.Link>
+              <Nav.Link as={Link} to="/estadisticas" 
+                className={getLinkClass('/estadisticas')}>
+                Estadísticas
+              </Nav.Link>
               <Nav.Link as={Link} to="/instructores" 
                 className={getLinkClass('/instructores')}>
                 Instructores
               </Nav.Link>
-              
-              <div className="d-flex flex-column align-items-center ms-lg-4 mt-3 mt-lg-0 user-actions-container">
-                <span>Bienvenido Recepción</span>
-                <Link to="/login" className="logout-link">
-                  Cerrar Sesión
-                </Link>
-              </div>
+              <Nav.Link as={Link} to="/inscripciones" 
+                className={getLinkClass('/inscripciones')}>
+                Inscripciones
+              </Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
